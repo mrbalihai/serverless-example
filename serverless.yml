@@ -1,4 +1,4 @@
-service: MicroserviceTask
+service: ServerlessExample
 frameworkVersion: "2"
 configValidationMode: error
 variablesResolutionMode: 20210326
