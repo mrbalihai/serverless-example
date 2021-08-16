@@ -1,0 +1,36 @@
+{
+    "type": "object",
+    "properties": {
+        "orderId": { "type": "string" },
+        "dateCreated": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "address": {
+            "type": "object",
+            "properties": {
+                "line1": { "type": "string" },
+                "line2": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "postcode": { "type": "string" },
+                "country": { "type": "string" }
+            },
+            "required": ["line1", "city", "postcode", "country"]
+        },
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "product": { "type": "string" },
+                    "description": { "type": "string" },
+                    "name": { "type": "string" },
+                    "unitPrice": { "type": "number" },
+                    "qty": { "type": "number" },
+                    "totalPrice": { "type": "number" }
+                }
+            },
+            "required": ["product", "name", "unitPrice", "qty", "totalPrice"]
+        }
+    },
+    "required": ["orderId", "dateCreated", "sellerId", "address", "items"]
+}

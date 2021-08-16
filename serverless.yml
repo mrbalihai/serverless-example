@@ -1,0 +1,149 @@
+service: MicroserviceTask
+frameworkVersion: "2"
+configValidationMode: error
+variablesResolutionMode: 20210326
+custom: 
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+plugins:
+  - serverless-webpack
+
+functions: 
+  postOrder:
+    handler: ./src/functions/postOrder.main
+    events:
+      - http:
+          method: post
+          path: order
+          request:
+            schemas:
+              application/json: ${file(src/schema/order.json)}
+
+  getOrdersBySellerId:
+    handler: ./src/functions/getOrdersBySellerId.main
+    events:
+      - http:
+          method: get
+          path: orders/{sellerId}
+          request:
+            parameters:
+              paths:
+                sellerId: true
+
+  getOrdersByDateRange:
+    handler: ./src/functions/getOrdersByDateRange.main
+    events:
+      - http:
+          method: get
+          path: orders
+          request:
+            parameters:
+              querystrings:
+                dateFrom: true
+                dateTo: true
+
+  getOrderBySellerIdAndOrderId:
+    handler: ./src/functions/getOrderBySellerIdAndOrderId.main
+    events:
+      - http:
+          method: get
+          path: order/{sellerId}
+          request:
+            parameters:
+              paths:
+                sellerId: true
+              querystrings:
+                orderId: true
+
+  processOrderWorker:
+    handler: ./src/functions/processOrderWorker.main
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - OrderQueue
+              - Arn
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  apiGateway: 
+    minimumCompressionSize: 1024
+    shouldStartNameWithService: true
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+  lambdaHashingVersion: "20201221"
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - Fn::GetAtt:
+              - OrderTable
+              - Arn
+            - Fn::Join: 
+              - '/'
+              - 
+                - Fn::GetAtt:
+                  - OrderTable
+                  - Arn
+                - index
+                - DateCreatedIndex
+
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:RecieveMessage
+            - sqs:DeleteMessage
+          Resource:
+            - Fn::GetAtt:
+              - OrderQueue
+              - Arn
+
+resources:
+  Resources:
+
+    OrderQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: OrderQueue
+
+    OrderTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrderTable
+        AttributeDefinitions:
+          - AttributeName: sellerId
+            AttributeType: S
+          - AttributeName: orderId
+            AttributeType: S
+          - AttributeName: dateCreated
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sellerId
+            KeyType: HASH
+          - AttributeName: orderId
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: DateCreatedIndex
+            KeySchema:
+              - AttributeName: dateCreated
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 10
+              WriteCapacityUnits: 10
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+  

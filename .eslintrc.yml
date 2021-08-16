@@ -1,0 +1,14 @@
+root: true
+parser: "@typescript-eslint/parser"
+plugins:
+  - "@typescript-eslint"
+extends:
+  - "eslint:recommended"
+  - "plugin:@typescript-eslint/recommended"
+ignorePatterns:
+  - "webpack.config.js"
+rules:
+  semi: "error"
+  quotes: [ "error", "double" ]
+  "@typescript-eslint/no-explicit-any": "error"
+  indent: ["error", 2]

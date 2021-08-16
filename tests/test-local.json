@@ -1,0 +1,6 @@
+{
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"orderId\":\"1\",\"dateCreated\":\"2021-08-08\",\"sellerId\":\"1\",\"address\":{\"line1\":\"10 Test Street\",\"line2\":\"Testville\",\"city\":\"Test City\",\"state\":\"\",\"postcode\":\"TE5 1IN\",\"country\":\"England\"},\"items\":[{\"product\":\"1\",\"name\":\"Hat\",\"description\":\"A hat to wear on your head\",\"unitPrice\":10,\"qty\":1,\"totalPrice\":10},{\"product\":\"2\",\"name\":\"T-Shirt\",\"description\":\"A t-shirt with a funky design\",\"unitPrice\":15,\"qty\":2,\"totalPrice\":15}]}"
+}
